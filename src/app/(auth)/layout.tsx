@@ -1,4 +1,5 @@
 import type { Metadata } from "next"
+import { QueryProvider } from "@/contexts/query-provider"
 
 export const metadata: Metadata = {
   title: "Authentication - ShadcnStore",
@@ -10,5 +11,5 @@ export default function AuthLayout({
 }: {
   children: React.ReactNode
 }) {
-  return <div className="min-h-screen bg-background">{children}</div>
+  return <QueryProvider><div className="min-h-screen bg-background">{children}</div></QueryProvider>
 }

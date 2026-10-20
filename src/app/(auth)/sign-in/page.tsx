@@ -1,4 +1,4 @@
-import { LoginForm2 } from "./components/login-form-2"
+import { LoginForm2 } from "./components/login-form"
 import { Logo } from "@/components/logo"
 import Link from "next/link"
 import Image from "next/image"
