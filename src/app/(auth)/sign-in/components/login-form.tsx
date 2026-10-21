@@ -16,7 +16,7 @@ export function LoginForm2({
 }: React.ComponentProps<"form"> & {
   onValidSubmit?: SubmitHandler<LoginFormValues>
 }) {
-  const loginMutation = useLoginMutation()
+  const { mutateAsync, isPending } = useLoginMutation()
   const {
     register,
     handleSubmit,
@@ -35,12 +35,11 @@ export function LoginForm2({
       onSubmit={handleSubmit(async (values, event) => {
         console.log("Login form submitted")
         try {
-          await loginMutation.mutateAsync(values)
-          await onValidSubmit?.(values, event)
-        } catch (error) {
-          setError("root", { message: error instanceof Error ? error.message : "Unable to log in." })
-        } finally {
-          loginMutation.reset()
+          await mutateAsync(values)
+          console.log("Login successful")
+          // await onValidSubmit?.(values, event)
+        } catch (error: any) {
+          console.log("Login error:", error.response?.data)
         }
       })}
     >
@@ -85,7 +84,7 @@ export function LoginForm2({
           <FieldError id="password-error" errors={[errors.password]} />
         </Field>
         <FieldError errors={[errors.root]} />
-        <Button type="submit" disabled={isSubmitting || loginMutation.isPending} className="w-full cursor-pointer">
+        <Button type="submit" disabled={isSubmitting || isPending} className="w-full cursor-pointer">
           {isSubmitting ? "Please wait..." : "Login"}
         </Button>
         <div className="after:border-border relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t">

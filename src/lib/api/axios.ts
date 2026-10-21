@@ -19,14 +19,14 @@ apiClient.interceptors.request.use((config) => {
 });
 
 apiClient.interceptors.response.use(
-    (response) => response.data,
+    // (response) => response.data.data,
     (error: unknown) => {
-        if (axios.isAxiosError(error)) {
-            console.error("API Error:", {
-                status: error.response?.status,
-                message: error.message,
-            });
-        }
+        // if (axios.isAxiosError(error)) {
+        //     console.error("API Error:", {
+        //         status: error.response?.status,
+        //         message: error.message,
+        //     });
+        // }
 
         return Promise.reject(error);
     },
