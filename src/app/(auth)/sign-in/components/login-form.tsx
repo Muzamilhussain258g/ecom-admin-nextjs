@@ -44,8 +44,11 @@ export function LoginForm2({
           })
           // await onValidSubmit?.(values, event)
           router.replace("/dashboard-2")
-        } catch (error: any) {
-          const message = error.response.data.message ?? "Unable to log in. Please try again."
+        } catch (error: unknown) {
+          const message =
+            error instanceof Error
+              ? error.message
+              : "Unable to log in. Please try again."
 
           toast.add({
             type: "error",
