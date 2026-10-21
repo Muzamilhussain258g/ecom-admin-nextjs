@@ -1,32 +1,14 @@
-import { NextResponse } from "next/server"
-import type { NextRequest } from "next/server"
+import { NextResponse } from 'next/server'
+import type { NextRequest } from 'next/server'
 
 // This function can be marked `async` if using `await` inside
 export function proxy(request: NextRequest) {
-  // Add custom middleware logic here
-  // For example: authentication, redirects, etc.
-
-  // Example: Redirect /login to /sign-in
-  if (request.nextUrl.pathname === "/login") {
-    return NextResponse.redirect(new URL("/sign-in", request.url))
-  }
-
-  // Example: Redirect /register to /sign-up
-  if (request.nextUrl.pathname === "/register") {
-    return NextResponse.redirect(new URL("/sign-up", request.url))
-  }
-
-  return NextResponse.next()
+  return NextResponse.redirect(new URL('/home', request.url))
 }
 
-// See "Matching Paths" below to learn more
+// Alternatively, you can use a default export:
+// export default function proxy(request: NextRequest) { ... }
+
 export const config = {
-  matcher: [
-    // Match all request paths except for the ones starting with:
-    // - api (API routes)
-    // - _next/static (static files)
-    // - _next/image (image optimization files)
-    // - favicon.ico (favicon file)
-    "/((?!api|_next/static|_next/image|favicon.ico).*)",
-  ],
+  matcher: '/about/:path*',
 }

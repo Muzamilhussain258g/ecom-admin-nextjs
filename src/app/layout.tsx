@@ -6,6 +6,7 @@ import { ThemeProvider } from "@/components/theme-provider"
 import { SidebarConfigProvider } from "@/contexts/sidebar-context"
 import { Toaster } from "@/components/ui/toast"
 import { inter } from "@/lib/fonts"
+import { QueryProvider } from "@/contexts/query-provider"
 
 export const metadata: Metadata = {
   title: "Shadcn Dashboard",
@@ -22,7 +23,9 @@ export default function RootLayout({
       <body className={inter.className}>
         <ThemeProvider defaultTheme="system" storageKey="nextjs-ui-theme">
           <SidebarConfigProvider>
-            <Toaster>{children}</Toaster>
+            <QueryProvider>
+              <Toaster>{children}</Toaster>
+            </QueryProvider>
           </SidebarConfigProvider>
         </ThemeProvider>
       </body>

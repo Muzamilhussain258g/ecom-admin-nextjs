@@ -8,6 +8,8 @@ import { Field, FieldError, FieldLabel } from "@/components/ui/field"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { useLoginMutation } from "@/features/auth/hooks/useAuth"
+import { toast } from "@/components/ui/toast"
+import { useRouter } from "next/navigation"
 
 export function LoginForm2({
   className,
@@ -17,10 +19,10 @@ export function LoginForm2({
   onValidSubmit?: SubmitHandler<LoginFormValues>
 }) {
   const { mutateAsync, isPending } = useLoginMutation()
+  const router = useRouter()
   const {
     register,
     handleSubmit,
-    setError,
     formState: { errors, isSubmitting },
   } = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
@@ -33,13 +35,23 @@ export function LoginForm2({
       {...props}
       noValidate
       onSubmit={handleSubmit(async (values, event) => {
-        console.log("Login form submitted")
         try {
           await mutateAsync(values)
-          console.log("Login successful")
+          toast.add({
+            type: "success",
+            title: "Login successful",
+            description: "You have logged in successfully.",
+          })
           // await onValidSubmit?.(values, event)
+          router.replace("/dashboard-2")
         } catch (error: any) {
-          console.log("Login error:", error.response?.data)
+          const message = error.response.data.message ?? "Unable to log in. Please try again."
+
+          toast.add({
+            type: "error",
+            title: "Login failed",
+            description: message,
+          })
         }
       })}
     >
