@@ -19,8 +19,12 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en" className={cn(inter.variable, "antialiased")}>
-      <body className={inter.className}>
+    <html
+      lang="en"
+      className={cn(inter.variable, "antialiased")}
+      suppressHydrationWarning
+    >
+      <body className={inter.className} suppressHydrationWarning>
         <ThemeProvider defaultTheme="system" storageKey="nextjs-ui-theme">
           <SidebarConfigProvider>
             <QueryProvider>

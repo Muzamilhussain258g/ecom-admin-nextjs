@@ -1,14 +1,76 @@
-import { NextResponse } from 'next/server'
-import type { NextRequest } from 'next/server'
+import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
 
-// This function can be marked `async` if using `await` inside
+const publicRoute = [
+  "/sign-in",
+  "/sign-up",
+  // "/forgot-password",
+  // "/errors",
+];
+
+const protectedRoute = [
+  "/calendar",
+  "/chat",
+  "/dashboard-2",
+  "/faqs",
+  "/mail",
+  "/pricing",
+  "/products",
+  "/variants",
+  "/categories",
+  "/collections",
+  "/settings",
+  "/tasks",
+  "/users",
+];
+
 export function proxy(request: NextRequest) {
-  return NextResponse.redirect(new URL('/home', request.url))
-}
+  const aT = request.cookies.get("_at")?.value;
+  const currentPath = request.nextUrl.pathname;
 
-// Alternatively, you can use a default export:
-// export default function proxy(request: NextRequest) { ... }
+  const isPublicRoute = publicRoute.some(
+    (route) =>
+      currentPath === route || currentPath.startsWith(`${route}/`)
+  );
+
+  const isProtectedRoute = protectedRoute.some(
+    (route) =>
+      currentPath === route || currentPath.startsWith(`${route}/`)
+  );
+
+  // Logged-in users cannot access sign-in/sign-up
+  if (isPublicRoute && aT) {
+    return NextResponse.redirect(
+      new URL("/dashboard-2", request.url)
+    );
+  }
+
+  // Guests cannot access protected routes
+  if (isProtectedRoute && !aT) {
+    return NextResponse.redirect(
+      new URL("/sign-in", request.url)
+    );
+  }
+
+  return NextResponse.next();
+}
 
 export const config = {
-  matcher: '/about/:path*',
-}
+  matcher: [
+    "/sign-in/:path*",
+    "/sign-up/:path*",
+    "/calendar/:path*",
+    "/chat/:path*",
+    "/dashboard-2/:path*",
+    "/faqs/:path*",
+    "/mail/:path*",
+    "/pricing/:path*",
+    "/products/:path*",
+    "/variants/:path*",
+    "/categories/:path*",
+    "/collections/:path*",
+    "/settings/:path*",
+    "/tasks/:path*",
+    "/users/:path*",
+  ],
+};

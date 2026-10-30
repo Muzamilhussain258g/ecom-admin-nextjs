@@ -16,6 +16,9 @@ import {
   LayoutTemplate,
   Users,
   Package,
+  Tags,
+  FolderTree,
+  LayoutGrid,
 } from "lucide-react"
 import Link from "next/link"
 import { Logo } from "@/components/logo"
@@ -62,6 +65,21 @@ const data = {
           title: "Products",
           url: "/products",
           icon: Package,
+        },
+        {
+          title: "Variants",
+          url: "/variants",
+          icon: Tags,
+        },
+        {
+          title: "Categories",
+          url: "/categories",
+          icon: FolderTree,
+        },
+        {
+          title: "Collections",
+          url: "/collections",
+          icon: LayoutGrid,
         },
         // {
         //   title: "Mail",

@@ -10,10 +10,15 @@ apiClient.interceptors.request.use((config) => {
   if (!process.env.NEXT_PUBLIC_API_BASE_URL) {
     throw new Error("Configure NEXT_PUBLIC_API_BASE_URL for API calls.");
   }
+
+  const aT = document.cookie.split("; ").find((row) => row.startsWith("_at="))?.split("=")[1];
+  if (aT) {
+    config.headers.Authorization = `Bearer ${aT}`;
+  }
   return config;
 });
 
 apiClient.interceptors.response.use(
-  (response) => response,
+  (response) => response.data,
   (error: unknown) => Promise.reject(error),
 );

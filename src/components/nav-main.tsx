@@ -106,7 +106,9 @@ export function NavMain({
               <SidebarMenuButton
                 tooltip={item.title}
                 className="cursor-pointer"
-                isActive={pathname === item.url}
+                isActive={
+                  pathname === item.url || pathname.startsWith(`${item.url}/`)
+                }
                 render={<Link href={item.url} />}
               >
                 {item.icon && <item.icon />}

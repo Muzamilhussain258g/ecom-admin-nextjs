@@ -9,8 +9,11 @@ export const useLoginMutation = () => {
 
   return useMutation({
     mutationFn: (credentials: LoginCredentials) => authApi.login(credentials),
-    onSuccess: (user) => {
-      setUser(user);
+    onSuccess: (data) => {
+      setUser(data.loggedInUser);
+      document.cookie = `_at=${data.accessToken}; path=/`;
+      document.cookie = `_rt=${data.refreshToken}; path=/`;
+      document.cookie = `_rti=${data.refreshTokenId}; path=/`;
     },
   });
 };

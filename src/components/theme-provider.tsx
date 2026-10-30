@@ -17,16 +17,18 @@ export function ThemeProvider({
   storageKey = "vite-ui-theme",
   ...props
 }: ThemeProviderProps) {
-  const [theme, setTheme] = React.useState<Theme>(
-    () =>
-      (typeof window !== "undefined" &&
-        (localStorage.getItem(storageKey) as Theme)) ||
-      defaultTheme
-  )
+  // Always start with defaultTheme so SSR HTML matches the client's first paint.
+  // Persist preference is applied after mount.
+  const [theme, setTheme] = React.useState<Theme>(defaultTheme)
 
   React.useEffect(() => {
-    if (typeof window === "undefined") return
+    const stored = localStorage.getItem(storageKey) as Theme | null
+    if (stored === "dark" || stored === "light" || stored === "system") {
+      setTheme(stored)
+    }
+  }, [storageKey])
 
+  React.useEffect(() => {
     const root = window.document.documentElement
 
     root.classList.remove("light", "dark")
@@ -44,15 +46,16 @@ export function ThemeProvider({
     root.classList.add(theme)
   }, [theme])
 
-  const value = {
-    theme,
-    setTheme: (theme: Theme) => {
-      if (typeof window !== "undefined") {
-        localStorage.setItem(storageKey, theme)
-      }
-      setTheme(theme)
-    },
-  }
+  const value = React.useMemo(
+    () => ({
+      theme,
+      setTheme: (nextTheme: Theme) => {
+        localStorage.setItem(storageKey, nextTheme)
+        setTheme(nextTheme)
+      },
+    }),
+    [storageKey, theme]
+  )
 
   return (
     <ThemeProviderContext.Provider {...props} value={value}>

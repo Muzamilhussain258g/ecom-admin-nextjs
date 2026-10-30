@@ -1,5 +1,7 @@
-import type { LoggedInUser } from "@/features/auth/types";
+import type { LoggedInUser, LoginData } from "@/features/auth/types";
+import { apiClient } from "@/lib/api/axios";
 import { API_ENDPOINTS } from "@/lib/api/endpoints";
+import { ApiResponse } from "@/lib/api/generic-response.types";
 
 export type LoginCredentials = {
   email: string;
@@ -18,21 +20,9 @@ type LoginErrorBody = {
 
 export const authApi = {
   /** Same-origin login; JWT is set as HttpOnly cookie by the API route. */
-  login: async (credentials: LoginCredentials): Promise<LoggedInUser> => {
-    const res = await fetch(API_ENDPOINTS.auth.login, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(credentials),
-    });
-
-    const body = (await res.json()) as LoginSuccessBody | LoginErrorBody;
-
-    if (!res.ok) {
-      throw new Error(
-        "message" in body && body.message ? body.message : "Login failed",
-      );
-    }
-
-    return (body as LoginSuccessBody).data.loggedInUser;
-  },
+  login: async (credentials: LoginCredentials): Promise<LoginData> => {
+    const response = await apiClient.post(API_ENDPOINTS.auth.login, credentials);
+    // console.log(response.data,"response.data");
+    return response.data;
+  }
 };
