@@ -5,11 +5,11 @@ import Link from "next/link";
 import { Minus, Pencil, Plus, Trash2 } from "lucide-react";
 
 import {
-  defaultCategoriesParams,
   useCategoriesQuery,
   useDeleteCategoryMutation,
 } from "@/features/categories/hooks/use-categories";
 import type { CategoryNode } from "@/features/categories/types";
+import { ListPagination } from "@/components/list-pagination";
 import { getApiErrorMessage } from "@/lib/api/get-api-error-message";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -262,12 +262,15 @@ function TopCategoryRow({
 }
 
 export function CategoriesTree() {
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(10);
   const { data, isLoading, isError, error, refetch, isFetching } =
-    useCategoriesQuery(defaultCategoriesParams);
+    useCategoriesQuery({ page, limit, depth: 5 });
   const deleteMutation = useDeleteCategoryMutation();
 
   const categories = data?.categories ?? [];
-  const total = data?.meta.pagination.total ?? categories.length;
+  const pagination = data?.meta.pagination;
+  const total = pagination?.total ?? categories.length;
 
   const handleDelete = async (category: CategoryNode) => {
     const confirmed = window.confirm(
@@ -358,6 +361,17 @@ export function CategoriesTree() {
           No categories yet. Create one to start organizing products.
         </div>
       )}
+      <ListPagination
+        page={pagination?.page ?? page}
+        pageSize={limit}
+        totalPages={pagination?.totalPages ?? 0}
+        total={pagination?.total}
+        disabled={isFetching}
+        canPrevious={pagination?.hasPreviousPage ?? page > 1}
+        canNext={pagination?.hasNextPage ?? false}
+        onPageChange={setPage}
+        onPageSizeChange={(size) => { setLimit(size); setPage(1); }}
+      />
     </div>
   );
 }

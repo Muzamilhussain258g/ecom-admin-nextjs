@@ -1,6 +1,7 @@
 "use client"
 
 import type { ColumnDef } from "@tanstack/react-table"
+import { serialNumberColumn } from "@/lib/serial-number-column"
 import type { DataTableFeatures } from "@/lib/data-table"
 
 import { Badge } from "@/components/ui/badge"
@@ -37,16 +38,7 @@ export const columns: ColumnDef<DataTableFeatures, Task>[] = [
     enableSorting: false,
     enableHiding: false,
   },
-  {
-    accessorKey: "id",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Task" />
-    ),
-    cell: ({ row }) => (
-      <div className="w-[90px] font-medium">{row.getValue("id")}</div>
-    ),
-    enableHiding: false,
-  },
+  serialNumberColumn<Task>(),
   {
     accessorKey: "title",
     header: ({ column }) => (

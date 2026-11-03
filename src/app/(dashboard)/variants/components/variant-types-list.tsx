@@ -12,27 +12,20 @@ import type {
   VariantType,
   VariantTypeValue,
 } from "@/features/variant-types/types";
+import { ListPagination } from "@/components/list-pagination";
+import { useListPagination } from "@/hooks/use-list-pagination";
 import { getApiErrorMessage } from "@/lib/api/get-api-error-message";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
-  CardDescription,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import { toast } from "@/components/ui/toast";
 import { VariantTypeFormDialog } from "./variant-type-form-dialog";
 import { VariantValueFormDialog } from "./variant-value-form-dialog";
+import { VariantValuesTable } from "./variant-values-table";
 
 export function VariantTypesList() {
   const { data, isLoading, isError, error, refetch, isFetching } =
@@ -118,6 +111,8 @@ export function VariantTypesList() {
     }
   };
 
+  const pagination = useListPagination(variantTypes);
+
   if (isLoading) {
     return (
       <p className="text-muted-foreground text-sm">Loading variant types...</p>
@@ -145,11 +140,11 @@ export function VariantTypesList() {
   return (
     <div className="flex flex-col gap-4">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <p className="text-muted-foreground text-sm">
+        {/* <p className="text-muted-foreground text-sm">
           {variantTypes.length} variant type
           {variantTypes.length === 1 ? "" : "s"} from `GET /variant-types`
           {isFetching ? " · refreshing" : ""}
-        </p>
+        </p> */}
         <Button className="cursor-pointer" onClick={openCreateType}>
           <Plus data-icon="inline-start" />
           Create type
@@ -160,7 +155,7 @@ export function VariantTypesList() {
         <p className="text-muted-foreground text-sm">No variant types found.</p>
       ) : (
         <div className="grid gap-4">
-          {variantTypes.map((type) => {
+          {pagination.items.map((type) => {
             const values = [...type.values].sort(
               (a, b) => a.sortOrder - b.sortOrder
             );
@@ -171,13 +166,13 @@ export function VariantTypesList() {
                   <div className="flex flex-col gap-1">
                     <CardTitle className="flex flex-wrap items-center gap-2">
                       {type.name}
-                      <Badge variant="outline">{type.slug}</Badge>
+                      {/* <Badge variant="outline">{type.slug}</Badge> */}
                     </CardTitle>
-                    <CardDescription>
+                    {/* <CardDescription>
                       ID {type.id} · sort {type.sortOrder} · {values.length}{" "}
                       value{values.length === 1 ? "" : "s"}
-                    </CardDescription>
-                    {values.length ? (
+                    </CardDescription> */}
+                    {/* {values.length ? (
                       <div className="mt-2 flex flex-wrap gap-2">
                         {values.map((value) => (
                           <Badge key={value.id} variant="secondary">
@@ -188,7 +183,7 @@ export function VariantTypesList() {
                           </Badge>
                         ))}
                       </div>
-                    ) : null}
+                    ) : null} */}
                   </div>
                   <div className="flex flex-wrap gap-2">
                     <Button
@@ -225,77 +220,20 @@ export function VariantTypesList() {
                   </div>
                 </CardHeader>
                 <CardContent>
-                  <div className="rounded-md border">
-                    <Table>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead>Value</TableHead>
-                          <TableHead>Code</TableHead>
-                          <TableHead>ID</TableHead>
-                          <TableHead>Sort</TableHead>
-                          <TableHead className="w-28 text-right">
-                            Actions
-                          </TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {values.length ? (
-                          values.map((value) => (
-                            <TableRow key={value.id}>
-                              <TableCell className="font-medium">
-                                {value.value}
-                              </TableCell>
-                              <TableCell>
-                                <Badge variant="secondary">{value.code}</Badge>
-                              </TableCell>
-                              <TableCell>{value.id}</TableCell>
-                              <TableCell>{value.sortOrder}</TableCell>
-                              <TableCell className="text-right">
-                                <div className="flex justify-end gap-1">
-                                  <Button
-                                    type="button"
-                                    size="icon"
-                                    variant="ghost"
-                                    className="size-8 cursor-pointer"
-                                    onClick={() => openEditValue(type, value)}
-                                  >
-                                    <Pencil />
-                                    <span className="sr-only">Edit value</span>
-                                  </Button>
-                                  <Button
-                                    type="button"
-                                    size="icon"
-                                    variant="ghost"
-                                    className="size-8 cursor-pointer"
-                                    onClick={() => void handleDeleteValue(value)}
-                                    disabled={deleteValueMutation.isPending}
-                                  >
-                                    <Trash2 />
-                                    <span className="sr-only">Delete value</span>
-                                  </Button>
-                                </div>
-                              </TableCell>
-                            </TableRow>
-                          ))
-                        ) : (
-                          <TableRow>
-                            <TableCell
-                              colSpan={5}
-                              className="text-muted-foreground h-16 text-center"
-                            >
-                              No values yet. Add one to get started.
-                            </TableCell>
-                          </TableRow>
-                        )}
-                      </TableBody>
-                    </Table>
-                  </div>
+                  <VariantValuesTable
+                    values={values}
+                    onEdit={(value) => openEditValue(type, value)}
+                    onDelete={(value) => void handleDeleteValue(value)}
+                    isDeleting={deleteValueMutation.isPending}
+                  />
                 </CardContent>
               </Card>
             );
           })}
         </div>
       )}
+
+      <ListPagination {...pagination} disabled={isFetching} />
 
       <VariantTypeFormDialog
         open={typeDialogOpen}

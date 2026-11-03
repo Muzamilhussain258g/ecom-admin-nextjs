@@ -24,8 +24,8 @@ const protectedRoute = [
   "/users",
 ];
 
-export function proxy(request: NextRequest) {
-  const aT = request.cookies.get("_at")?.value;
+export async function proxy(request: NextRequest) {
+  const aT =await request.cookies.get("_at")?.value;
   const currentPath = request.nextUrl.pathname;
 
   const isPublicRoute = publicRoute.some(

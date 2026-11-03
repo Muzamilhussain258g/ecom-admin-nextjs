@@ -1,4 +1,17 @@
 export const API_ENDPOINTS = {
+  reviews: {
+    list: "/admin/reviews",
+    byId: (id: number) => `/reviews/${id}`,
+  },
+  orders: {
+    list: "/orders/admin/all",
+    byId: (id: number) => `/orders/${id}`,
+    status: (id: number) => `/orders/admin/${id}/status`,
+  },
+  users: {
+    list: "/users",
+    byId: (id: number) => `/users/${id}`,
+  },
   auth: {
     login: "/auth/signin",
     refresh: "/auth/refresh",

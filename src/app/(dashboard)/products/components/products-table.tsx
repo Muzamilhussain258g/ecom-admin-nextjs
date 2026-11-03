@@ -7,9 +7,11 @@ import {
   flexRender,
   useTable,
 } from "@tanstack/react-table";
+import { ListPagination } from "@/components/list-pagination";
 import { Eye, Search } from "lucide-react";
 
 import { dataTableFeatures, type DataTableFeatures } from "@/lib/data-table";
+import { serialNumberColumn } from "@/lib/serial-number-column";
 import { useProductsQuery } from "@/features/products/hooks/use-products";
 import type {
   Product,
@@ -47,6 +49,7 @@ import {
 } from "@/components/ui/table";
 
 const columns: ColumnDef<DataTableFeatures, Product>[] = [
+  serialNumberColumn<Product>(),
   {
     id: "product",
     header: "Product",
@@ -310,68 +313,17 @@ export function ProductsTable() {
         </Table>
       </div>
 
-      <div className="flex items-center justify-between gap-2 py-2">
-        <Field orientation="horizontal" className="w-fit">
-          <FieldLabel htmlFor="products-page-size" className="text-sm font-medium">
-            Show
-          </FieldLabel>
-          <Select
-            value={`${limit}`}
-            onValueChange={(value) => {
-              setLimit(Number(value));
-              setPage(1);
-            }}
-          >
-            <SelectTrigger className="w-20 cursor-pointer" id="products-page-size">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent side="top">
-              <SelectGroup>
-                {[10, 20, 30, 40, 50].map((pageSize) => (
-                  <SelectItem key={pageSize} value={`${pageSize}`}>
-                    {pageSize}
-                  </SelectItem>
-                ))}
-              </SelectGroup>
-            </SelectContent>
-          </Select>
-        </Field>
-
-        <div className="text-muted-foreground hidden text-sm sm:block">
-          {pagination
-            ? `${pagination.total} product${pagination.total === 1 ? "" : "s"}${
-                isFetching && !isLoading ? " · refreshing" : ""
-              }`
-            : null}
-        </div>
-
-        <div className="flex items-center gap-2">
-          <div className="hidden items-center gap-2 sm:flex">
-            <p className="text-sm font-medium">Page</p>
-            <strong className="text-sm">
-              {pagination?.page ?? page} of {pagination?.totalPages ?? 1}
-            </strong>
-          </div>
-          <Button
-            variant="outline"
-            size="sm"
-            className="cursor-pointer"
-            onClick={() => setPage((current) => Math.max(1, current - 1))}
-            disabled={!pagination?.hasPreviousPage || isLoading}
-          >
-            Previous
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            className="cursor-pointer"
-            onClick={() => setPage((current) => current + 1)}
-            disabled={!pagination?.hasNextPage || isLoading}
-          >
-            Next
-          </Button>
-        </div>
-      </div>
+      <ListPagination
+        page={pagination?.page ?? page}
+        pageSize={limit}
+        totalPages={pagination?.totalPages ?? 0}
+        total={pagination?.total}
+        disabled={isFetching}
+        canPrevious={pagination?.hasPreviousPage ?? false}
+        canNext={pagination?.hasNextPage ?? false}
+        onPageChange={setPage}
+        onPageSizeChange={(size) => { setLimit(size); setPage(1); }}
+      />
     </div>
   );
 }

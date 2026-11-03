@@ -1,84 +1,23 @@
-"use client"
+import { UsersTable } from "./components/users-table";
 
-import { useState } from "react"
-import { StatCards } from "./components/stat-cards"
-import { DataTable } from "./components/data-table"
-
-import initialUsersData from "./data.json"
-
-interface User {
-  id: number
-  name: string
-  email: string
-  avatar: string
-  role: string
-  plan: string
-  billing: string
-  status: string
-  joinedDate: string
-  lastLogin: string
-}
-
-interface UserFormValues {
-  name: string
-  email: string
-  role: string
-  plan: string
-  billing: string
-  status: string
-}
-
-export default function UsersPage() {
-  const [users, setUsers] = useState<User[]>(initialUsersData)
-
-  const generateAvatar = (name: string) => {
-    const names = name.split(" ")
-    if (names.length >= 2) {
-      return `${names[0][0]}${names[1][0]}`.toUpperCase()
-    }
-    return name.substring(0, 2).toUpperCase()
-  }
-
-  const handleAddUser = (userData: UserFormValues) => {
-    const newUser: User = {
-      id: Math.max(...users.map((u) => u.id)) + 1,
-      name: userData.name,
-      email: userData.email,
-      avatar: generateAvatar(userData.name),
-      role: userData.role,
-      plan: userData.plan,
-      billing: userData.billing,
-      status: userData.status,
-      joinedDate: new Date().toISOString().split("T")[0],
-      lastLogin: new Date().toISOString().split("T")[0],
-    }
-    setUsers((prev) => [newUser, ...prev])
-  }
-
-  const handleDeleteUser = (id: number) => {
-    setUsers((prev) => prev.filter((user) => user.id !== id))
-  }
-
-  const handleEditUser = (user: User) => {
-    // For now, just log the user to edit
-    // In a real app, you'd open an edit dialog
-    console.log("Edit user:", user)
-  }
-
+export default async function UsersPage({ searchParams }: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
+  const values = await searchParams;
+  const page = Number(values.page);
+  const limit = Number(values.limit);
+  const search = typeof values.search === "string" ? values.search.trim() : "";
   return (
-    <div className="flex flex-col gap-4">
-      <div className="@container/main px-4 lg:px-6">
-        <StatCards />
+    <div className="flex flex-col gap-6 px-4 lg:px-6">
+      <div>
+        <h1 className="text-2xl font-semibold tracking-tight">Users</h1>
+        <p className="text-muted-foreground text-sm">Browse user accounts and view their details.</p>
       </div>
-
-      <div className="@container/main px-4 lg:px-6 mt-8 lg:mt-12">
-        <DataTable
-          users={users}
-          onDeleteUser={handleDeleteUser}
-          onEditUser={handleEditUser}
-          onAddUser={handleAddUser}
-        />
-      </div>
+      <UsersTable key={`${page}-${limit}-${search}`} params={{
+        page: Number.isSafeInteger(page) && page > 0 ? page : 1,
+        limit: [10, 20, 25, 30, 40, 50].includes(limit) ? limit : 10,
+        search: search || undefined,
+      }} />
     </div>
-  )
+  );
 }

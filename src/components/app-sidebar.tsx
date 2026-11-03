@@ -15,6 +15,8 @@ import {
   CreditCard,
   LayoutTemplate,
   Users,
+  ShoppingBag,
+  Star,
   Package,
   Tags,
   FolderTree,
@@ -62,14 +64,14 @@ const data = {
       label: "Apps",
       items: [
         {
+          title: "Orders",
+          url: "/orders",
+          icon: ShoppingBag,
+        },
+        {
           title: "Products",
           url: "/products",
           icon: Package,
-        },
-        {
-          title: "Variants",
-          url: "/variants",
-          icon: Tags,
         },
         {
           title: "Categories",
@@ -80,6 +82,11 @@ const data = {
           title: "Collections",
           url: "/collections",
           icon: LayoutGrid,
+        },
+        {
+          title: "Variants",
+          url: "/variants",
+          icon: Tags,
         },
         // {
         //   title: "Mail",
@@ -101,11 +108,16 @@ const data = {
         //   url: "/calendar",
         //   icon: Calendar,
         // },
-        // {
-        //   title: "Users",
-        //   url: "/users",
-        //   icon: Users,
-        // },
+        {
+          title: "Users",
+          url: "/users",
+          icon: Users,
+        },
+        {
+          title: "Reviews",
+          url: "/reviews",
+          icon: Star,
+        },
       ],
     },
     // {

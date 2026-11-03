@@ -8,6 +8,8 @@ import {
   formatCollectionDate,
   formatCollectionPrice,
 } from "@/features/collections/utils";
+import { ListPagination } from "@/components/list-pagination";
+import { useListPagination } from "@/hooks/use-list-pagination";
 import { getApiErrorMessage } from "@/lib/api/get-api-error-message";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -24,6 +26,8 @@ export function CollectionsList() {
     useCollectionsQuery();
 
   const collections = data ?? [];
+
+  const pagination = useListPagination(collections);
 
   if (isLoading) {
     return (
@@ -73,7 +77,7 @@ export function CollectionsList() {
         </div>
       ) : (
         <div className="grid gap-4">
-          {collections.map((collection) => {
+          {pagination.items.map((collection) => {
             const products = [...collection.products].sort(
               (a, b) => a.position - b.position
             );
@@ -162,6 +166,7 @@ export function CollectionsList() {
           })}
         </div>
       )}
+      <ListPagination {...pagination} disabled={isFetching} />
     </div>
   );
 }
