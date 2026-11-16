@@ -1,84 +1,154 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { StatCards } from "./components/stat-cards"
-import { DataTable } from "./components/data-table"
+import { useState, type FormEvent } from "react";
+import { Search } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { useUsersQuery } from "@/features/users/hooks/use-users";
+import { getApiErrorMessage } from "@/lib/api/get-api-error-message";
 
-import initialUsersData from "./data.json"
-
-interface User {
-  id: number
-  name: string
-  email: string
-  avatar: string
-  role: string
-  plan: string
-  billing: string
-  status: string
-  joinedDate: string
-  lastLogin: string
-}
-
-interface UserFormValues {
-  name: string
-  email: string
-  role: string
-  plan: string
-  billing: string
-  status: string
-}
+const PAGE_SIZE = 10;
 
 export default function UsersPage() {
-  const [users, setUsers] = useState<User[]>(initialUsersData)
+  const [searchInput, setSearchInput] = useState("");
+  const [search, setSearch] = useState("");
+  const [page, setPage] = useState(1);
+  const { data, error, isPending, isFetching, refetch } = useUsersQuery({
+    page,
+    limit: PAGE_SIZE,
+    ...(search ? { search } : {}),
+  });
 
-  const generateAvatar = (name: string) => {
-    const names = name.split(" ")
-    if (names.length >= 2) {
-      return `${names[0][0]}${names[1][0]}`.toUpperCase()
-    }
-    return name.substring(0, 2).toUpperCase()
-  }
+  const handleSearch = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setPage(1);
+    setSearch(searchInput.trim());
+  };
 
-  const handleAddUser = (userData: UserFormValues) => {
-    const newUser: User = {
-      id: Math.max(...users.map((u) => u.id)) + 1,
-      name: userData.name,
-      email: userData.email,
-      avatar: generateAvatar(userData.name),
-      role: userData.role,
-      plan: userData.plan,
-      billing: userData.billing,
-      status: userData.status,
-      joinedDate: new Date().toISOString().split("T")[0],
-      lastLogin: new Date().toISOString().split("T")[0],
-    }
-    setUsers((prev) => [newUser, ...prev])
-  }
-
-  const handleDeleteUser = (id: number) => {
-    setUsers((prev) => prev.filter((user) => user.id !== id))
-  }
-
-  const handleEditUser = (user: User) => {
-    // For now, just log the user to edit
-    // In a real app, you'd open an edit dialog
-    console.log("Edit user:", user)
-  }
+  const pagination = data?.meta.pagination;
 
   return (
-    <div className="flex flex-col gap-4">
-      <div className="@container/main px-4 lg:px-6">
-        <StatCards />
-      </div>
+    <section className="flex flex-col gap-5 px-4 lg:px-6">
+      <header>
+        <h1 className="text-2xl font-semibold">Users</h1>
+        <p className="text-sm text-muted-foreground">
+          Search and review user accounts.
+        </p>
+      </header>
 
-      <div className="@container/main px-4 lg:px-6 mt-8 lg:mt-12">
-        <DataTable
-          users={users}
-          onDeleteUser={handleDeleteUser}
-          onEditUser={handleEditUser}
-          onAddUser={handleAddUser}
+      <form
+        onSubmit={handleSearch}
+        className="flex w-full max-w-lg items-center gap-2"
+      >
+        <label htmlFor="user-search" className="sr-only">
+          Search users by name or email
+        </label>
+        <Input
+          id="user-search"
+          value={searchInput}
+          onChange={(event) => setSearchInput(event.target.value)}
+          placeholder="Search name or email"
         />
-      </div>
-    </div>
-  )
+        <Button type="submit" disabled={isFetching}>
+          <Search data-icon="inline-start" />
+          Search
+        </Button>
+      </form>
+
+      {error ? (
+        <div
+          role="alert"
+          className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-destructive/30 p-4 text-sm text-destructive"
+        >
+          <span>{getApiErrorMessage(error, "Unable to load users.")}</span>
+          <Button variant="outline" size="sm" onClick={() => void refetch()}>
+            Retry
+          </Button>
+        </div>
+      ) : (
+        <>
+          <div className="overflow-hidden rounded-lg border">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Name</TableHead>
+                  <TableHead>Email</TableHead>
+                  <TableHead>Role</TableHead>
+                  <TableHead>Joined</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {isPending ? (
+                  <TableRow>
+                    <TableCell
+                      colSpan={4}
+                      className="h-24 text-center text-muted-foreground"
+                    >
+                      Loading users...
+                    </TableCell>
+                  </TableRow>
+                ) : data?.users.length ? (
+                  data.users.map((user) => (
+                    <TableRow key={user.id}>
+                      <TableCell className="font-medium">{user.name}</TableCell>
+                      <TableCell>{user.email}</TableCell>
+                      <TableCell>
+                        <Badge variant="secondary">{user.role}</Badge>
+                      </TableCell>
+                      <TableCell>
+                        {new Date(user.createdAt).toLocaleDateString()}
+                      </TableCell>
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell
+                      colSpan={4}
+                      className="h-24 text-center text-muted-foreground"
+                    >
+                      No users found.
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </div>
+
+          <div className="flex items-center justify-between gap-3">
+            <p className="text-sm text-muted-foreground" aria-live="polite">
+              {pagination
+                ? `${pagination.total} users · Page ${pagination.page} of ${Math.max(pagination.totalPages, 1)}`
+                : ""}
+              {isFetching && !isPending ? " · Updating..." : ""}
+            </p>
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                disabled={!pagination?.hasPreviousPage || isFetching}
+                onClick={() => setPage((current) => Math.max(current - 1, 1))}
+              >
+                Previous
+              </Button>
+              <Button
+                variant="outline"
+                disabled={!pagination?.hasNextPage || isFetching}
+                onClick={() => setPage((current) => current + 1)}
+              >
+                Next
+              </Button>
+            </div>
+          </div>
+        </>
+      )}
+    </section>
+  );
 }

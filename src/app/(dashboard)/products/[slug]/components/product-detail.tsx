@@ -259,6 +259,16 @@ export function ProductDetail() {
                     {(product.variants ?? []).length}
                   </dd>
                 </div>
+                <div>
+                  <dt className="text-muted-foreground">Wishlist</dt>
+                  <dd className="font-medium">
+                    {product.isWishlisted === undefined
+                      ? "Unavailable"
+                      : product.isWishlisted
+                        ? "Wishlisted"
+                        : "Not wishlisted"}
+                  </dd>
+                </div>
               </dl>
             </CardContent>
           </Card>

@@ -109,6 +109,23 @@ const columns: ColumnDef<DataTableFeatures, Product>[] = [
       ),
   },
   {
+    accessorKey: "isWishlisted",
+    header: "Wishlist",
+    cell: ({ row }) => {
+      const isWishlisted = row.original.isWishlisted;
+
+      if (isWishlisted === undefined) {
+        return <span className="text-muted-foreground">Unavailable</span>;
+      }
+
+      return (
+        <Badge variant={isWishlisted ? "default" : "secondary"}>
+          {isWishlisted ? "Wishlisted" : "Not wishlisted"}
+        </Badge>
+      );
+    },
+  },
+  {
     accessorKey: "updatedAt",
     header: "Updated",
     cell: ({ row }) => formatDate(row.original.updatedAt),

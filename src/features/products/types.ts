@@ -96,6 +96,7 @@ export type Product = {
   basePrice: string;
   productStatus: boolean;
   hasVariants: boolean;
+  isWishlisted?: boolean;
   productCategories: ProductCategoryLink[];
   images: ProductImage[];
 };

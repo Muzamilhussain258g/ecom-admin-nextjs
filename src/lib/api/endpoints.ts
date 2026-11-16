@@ -32,6 +32,14 @@ export const API_ENDPOINTS = {
   variantValues: {
     byId: (id: number) => `/variant-values/${id}`,
   },
+  users: {
+    list: "/users",
+  },
+  orders: {
+    adminList: "/orders/admin/all",
+    byId: (id: number) => `/orders/${id}`,
+    adminStatus: (id: number) => `/orders/admin/${id}/status`,
+  },
   media: {
     uploadSignature: "/media/upload-signature",
   },

@@ -19,6 +19,7 @@ import {
   Tags,
   FolderTree,
   LayoutGrid,
+  ShoppingCart,
 } from "lucide-react"
 import Link from "next/link"
 import { Logo } from "@/components/logo"
@@ -81,6 +82,16 @@ const data = {
           url: "/collections",
           icon: LayoutGrid,
         },
+        {
+          title: "Orders",
+          url: "/orders",
+          icon: ShoppingCart,
+        },
+        {
+          title: "Users",
+          url: "/users",
+          icon: Users,
+        },
         // {
         //   title: "Mail",
         //   url: "/mail",
@@ -100,11 +111,6 @@ const data = {
         //   title: "Calendar",
         //   url: "/calendar",
         //   icon: Calendar,
-        // },
-        // {
-        //   title: "Users",
-        //   url: "/users",
-        //   icon: Users,
         // },
       ],
     },
