@@ -1,10 +1,3 @@
-export interface OrdersListParams {
-  page: number;
-  limit: number;
-  status?: OrderStatus;
-  userId?: number;
-}
-
 export const ORDER_STATUSES = [
   "pending",
   "confirmed",
@@ -17,13 +10,18 @@ export const ORDER_STATUSES = [
 
 export type OrderStatus = (typeof ORDER_STATUSES)[number];
 
-export interface OrdersPagination {
-  page: number;
-  limit: number;
-  total: number;
-  totalPages: number;
-  hasNextPage: boolean;
-  hasPrevPage: boolean;
+export interface UpdateOrderStatusPayload {
+  status: OrderStatus;
+}
+
+export interface OrderShipping {
+  shippingFullName: string;
+  shippingPhone: string;
+  shippingStreet: string;
+  shippingCity: string;
+  shippingProvince: string;
+  shippingPostalCode: string;
+  shippingCountry: string;
 }
 
 export interface OrderItem {
@@ -45,18 +43,9 @@ export interface OrderItem {
   };
 }
 
-export interface OrderShipping {
-  shippingFullName: string;
-  shippingPhone: string;
-  shippingStreet: string;
-  shippingCity: string;
-  shippingProvince: string;
-  shippingPostalCode: string;
-  shippingCountry: string;
-}
-
 export interface OrderPayment {
   id: number;
+  orderId: number;
   amount: string;
   currency: string;
   status: string;
@@ -65,7 +54,7 @@ export interface OrderPayment {
   paidAt?: string | null;
 }
 
-export interface AdminOrder {
+export interface Order {
   id: number;
   userId: number;
   shippingAddressId?: number | null;
@@ -77,7 +66,27 @@ export interface AdminOrder {
   payments: OrderPayment[];
 }
 
+export type AdminOrder = Order;
+
+export interface ListOrdersParams {
+  page: number;
+  limit: number;
+  status?: string;
+  userId?: number;
+}
+
+export type OrdersListParams = ListOrdersParams;
+
+export interface OrdersPagination {
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
+  hasNextPage: boolean;
+  hasPrevPage: boolean;
+}
+
 export interface OrdersListData {
-  orders: AdminOrder[];
+  orders: Order[];
   pagination: OrdersPagination;
 }

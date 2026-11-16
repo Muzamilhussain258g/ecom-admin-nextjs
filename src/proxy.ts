@@ -20,13 +20,14 @@ const protectedRoute = [
   "/categories",
   "/collections",
   "/orders",
+  "/reviews",
   "/settings",
   "/tasks",
   "/users",
 ];
 
-export function proxy(request: NextRequest) {
-  const aT = request.cookies.get("_at")?.value;
+export async function proxy(request: NextRequest) {
+  const aT =await request.cookies.get("_at")?.value;
   const currentPath = request.nextUrl.pathname;
 
   const isPublicRoute = publicRoute.some(
@@ -71,6 +72,7 @@ export const config = {
     "/categories/:path*",
     "/collections/:path*",
     "/orders/:path*",
+    "/reviews/:path*",
     "/settings/:path*",
     "/tasks/:path*",
     "/users/:path*",

@@ -10,6 +10,9 @@ import {
 import Link from "next/link"
 
 import { Logo } from "@/components/logo"
+import { useLogoutMutation } from "@/features/auth/hooks/useAuth"
+import { getApiErrorMessage } from "@/lib/api/get-api-error-message"
+import { toast } from "@/components/ui/toast"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -32,10 +35,24 @@ export function NavUser({
   user: {
     name: string
     email: string
+    role?: string
     avatar: string
   }
 }) {
   const { isMobile } = useSidebar()
+  const logoutMutation = useLogoutMutation()
+
+  const handleLogout = () => {
+    logoutMutation.mutate(undefined, {
+      onError: (error) => {
+        toast.add({
+          type: "error",
+          title: "Logout failed",
+          description: getApiErrorMessage(error, "Unable to log out. Please try again."),
+        })
+      },
+    })
+  }
 
   return (
     <SidebarMenu>
@@ -57,6 +74,11 @@ export function NavUser({
               <span className="text-muted-foreground truncate text-xs">
                 {user.email}
               </span>
+              {user.role ? (
+                <span className="text-muted-foreground truncate text-xs capitalize">
+                  {user.role}
+                </span>
+              ) : null}
             </div>
             <EllipsisVertical className="ml-auto" />
           </DropdownMenuTrigger>
@@ -77,6 +99,11 @@ export function NavUser({
                     <span className="text-muted-foreground truncate text-xs">
                       {user.email}
                     </span>
+                    {user.role ? (
+                      <span className="text-muted-foreground truncate text-xs capitalize">
+                        {user.role}
+                      </span>
+                    ) : null}
                   </div>
                 </div>
               </DropdownMenuLabel>
@@ -109,10 +136,11 @@ export function NavUser({
             <DropdownMenuGroup>
               <DropdownMenuItem
                 className="cursor-pointer"
-                render={<Link href="/sign-in" />}
+                disabled={logoutMutation.isPending}
+                onClick={handleLogout}
               >
                 <LogOut />
-                Log out
+                {logoutMutation.isPending ? "Logging out..." : "Log out"}
               </DropdownMenuItem>
             </DropdownMenuGroup>
           </DropdownMenuContent>

@@ -1,8 +1,21 @@
 export const API_ENDPOINTS = {
+  reviews: {
+    list: "/admin/reviews",
+    byId: (id: number) => `/reviews/${id}`,
+  },
+  orders: {
+    list: "/orders/admin/all",
+    byId: (id: number) => `/orders/${id}`,
+    status: (id: number) => `/orders/admin/${id}/status`,
+  },
+  users: {
+    list: "/users",
+  },
   auth: {
     login: "/auth/signin",
+    me: "/auth/me",
     refresh: "/auth/refresh",
-    logout: "/auth/logout",
+    logout: "/auth/signout",
     // forgotPassword: "/auth/password/forgot",
     // verifyPasswordOtp: "/auth/password/otp/verify",
     // resetPassword: "/auth/password/reset",
@@ -31,14 +44,6 @@ export const API_ENDPOINTS = {
   },
   variantValues: {
     byId: (id: number) => `/variant-values/${id}`,
-  },
-  users: {
-    list: "/users",
-  },
-  orders: {
-    adminList: "/orders/admin/all",
-    byId: (id: number) => `/orders/${id}`,
-    adminStatus: (id: number) => `/orders/admin/${id}/status`,
   },
   media: {
     uploadSignature: "/media/upload-signature",

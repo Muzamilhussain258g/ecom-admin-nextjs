@@ -1,4 +1,4 @@
-export interface UserSummary {
+export interface User {
   id: number;
   name: string;
   email: string;
@@ -7,11 +7,15 @@ export interface UserSummary {
   updatedAt: string;
 }
 
-export interface UsersListParams {
+export type UserSummary = User;
+
+export interface ListUsersParams {
   page: number;
   limit: number;
   search?: string;
 }
+
+export type UsersListParams = ListUsersParams;
 
 export interface UsersPagination {
   page: number;
@@ -23,7 +27,7 @@ export interface UsersPagination {
 }
 
 export interface UsersListData {
-  users: UserSummary[];
+  users: User[];
   meta: {
     pagination: UsersPagination;
   };

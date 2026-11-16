@@ -1,14 +1,17 @@
-import { OrderDetail } from "./components/order-detail";
+import { notFound } from "next/navigation";
+import { OrderDetailPage } from "./components/order-detail-page";
 
-type OrderDetailPageProps = {
+type OrderPageProps = {
   params: Promise<{ id: string }>;
 };
 
-export default async function OrderDetailPage({
-  params,
-}: OrderDetailPageProps) {
+export default async function OrderPage({ params }: OrderPageProps) {
   const { id } = await params;
   const orderId = Number(id);
 
-  return <OrderDetail orderId={orderId} />;
+  if (!/^\d+$/.test(id) || !Number.isSafeInteger(orderId) || orderId < 1) {
+    notFound();
+  }
+
+  return <OrderDetailPage id={orderId} />;
 }

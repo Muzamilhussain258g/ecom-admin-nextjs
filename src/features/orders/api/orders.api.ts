@@ -2,43 +2,39 @@ import { apiClient } from "@/lib/api/axios";
 import { API_ENDPOINTS } from "@/lib/api/endpoints";
 import type { ApiResponse } from "@/lib/api/generic-response.types";
 import type {
-  AdminOrder,
-  OrderStatus,
+  ListOrdersParams,
+  Order,
   OrdersListData,
-  OrdersListParams,
+  UpdateOrderStatusPayload,
 } from "@/features/orders/types";
 
+const requestHeaders = { "ngrok-skip-browser-warning": "true" };
+
 export const ordersApi = {
-  listAdmin: async (params: OrdersListParams): Promise<OrdersListData> => {
-    const response = (await apiClient.get(API_ENDPOINTS.orders.adminList, {
-      params: {
-        page: params.page,
-        limit: params.limit,
-        ...(params.status ? { status: params.status } : {}),
-        ...(params.userId ? { userId: params.userId } : {}),
-      },
-    })) as ApiResponse<OrdersListData>;
-
+  async getById(id: number): Promise<Order> {
+    const response = (await apiClient.get(API_ENDPOINTS.orders.byId(id), {
+      headers: requestHeaders,
+    })) as ApiResponse<Order>;
     return response.data;
   },
 
-  getById: async (id: number): Promise<AdminOrder> => {
-    const response = (await apiClient.get(
-      API_ENDPOINTS.orders.byId(id)
-    )) as ApiResponse<AdminOrder>;
-
-    return response.data;
-  },
-
-  updateAdminStatus: async (
+  async updateStatus(
     id: number,
-    status: OrderStatus
-  ): Promise<AdminOrder> => {
+    payload: UpdateOrderStatusPayload
+  ): Promise<Order> {
     const response = (await apiClient.patch(
-      API_ENDPOINTS.orders.adminStatus(id),
-      { status }
-    )) as ApiResponse<AdminOrder>;
+      API_ENDPOINTS.orders.status(id),
+      payload,
+      { headers: requestHeaders }
+    )) as ApiResponse<Order>;
+    return response.data;
+  },
 
+  async list(params: ListOrdersParams): Promise<OrdersListData> {
+    const response = (await apiClient.get(API_ENDPOINTS.orders.list, {
+      params,
+      headers: requestHeaders,
+    })) as ApiResponse<OrdersListData>;
     return response.data;
   },
 };
