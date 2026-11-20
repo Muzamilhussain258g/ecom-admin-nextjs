@@ -15,6 +15,10 @@ export interface User {
 
 export interface Message {
   id: string
+  sequence?: number
+  clientMessageId?: string
+  senderRole?: string
+  isOwn?: boolean
   content: string
   timestamp: string
   senderId: string

@@ -10,7 +10,7 @@ export function SidebarConfigProvider({
   children: React.ReactNode
 }) {
   const [config, setConfig] = React.useState<SidebarConfig>({
-    variant: "inset",
+    variant: "sidebar",
     collapsible: "offcanvas",
     side: "left",
   })

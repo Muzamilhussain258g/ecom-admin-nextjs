@@ -92,8 +92,13 @@ export function MessageList({
     }
   }
 
+  const isMessageOwn = (message: Message) =>
+    message.isOwn === true ||
+    message.senderRole?.toLowerCase() === "admin" ||
+    message.senderId === currentUserId
+
   const shouldShowAvatar = (message: Message, index: number) => {
-    if (message.senderId === currentUserId) return false
+    if (isMessageOwn(message)) return false
     if (index === 0) return true
 
     const prevMessage = messages[index - 1]
@@ -101,7 +106,7 @@ export function MessageList({
   }
 
   const shouldShowName = (message: Message, index: number) => {
-    if (message.senderId === currentUserId) return false
+    if (isMessageOwn(message)) return false
     if (index === 0) return true
 
     const prevMessage = messages[index - 1]
@@ -154,9 +159,9 @@ export function MessageList({
 
   return (
     <ScrollArea className="flex-1 px-4" ref={scrollAreaRef}>
-      <div className="flex flex-col gap-4 py-4">
+      <div className="flex flex-col gap-4 py-4 h-0">
         {messageGroups.map((group) => (
-          <div key={group.date}>
+          <div key={group.date} > 
             {/* Date separator */}
             <div className="flex items-center justify-center py-2">
               <div className="text-xs text-muted-foreground bg-background px-3 py-1 rounded-full border">
@@ -165,10 +170,10 @@ export function MessageList({
             </div>
 
             {/* Messages for this day */}
-            <div className="flex flex-col gap-1">
+            <div className="flex flex-col gap-1 ">
               {group.messages.map((message, messageIndex) => {
                 const user = getUserById(message.senderId)
-                const isOwnMessage = message.senderId === currentUserId
+                const ownMessage = isMessageOwn(message)
                 const showAvatar = shouldShowAvatar(message, messageIndex)
                 const showName = shouldShowName(message, messageIndex)
                 const isConsecutive = isConsecutiveMessage(
@@ -180,13 +185,13 @@ export function MessageList({
                   <div
                     key={message.id}
                     className={cn(
-                      "flex gap-3 group",
-                      isOwnMessage && "flex-row-reverse",
-                      isConsecutive && !isOwnMessage && "ml-12"
+                      "flex w-full gap-3 group",
+                      ownMessage ? "justify-end" : "justify-start",
+                      isConsecutive && !ownMessage && "ml-12"
                     )}
                   >
                     {/* Avatar */}
-                    {!isOwnMessage && (
+                    {!ownMessage && (
                       <div className="w-8">
                         {showAvatar && user && (
                           <Avatar className="size-8 cursor-pointer">
@@ -206,12 +211,12 @@ export function MessageList({
                     {/* Message content */}
                     <div
                       className={cn(
-                        "flex-1 max-w-[70%]",
-                        isOwnMessage && "flex flex-col items-end"
+                        "max-w-[70%]",
+                        ownMessage ? "ml-auto flex flex-col items-end" : "mr-auto"
                       )}
                     >
                       {/* Sender name for group messages */}
-                      {showName && user && !isOwnMessage && (
+                      {showName && user && !ownMessage && (
                         <div className="text-sm font-medium text-foreground mb-1">
                           {user.name}
                         </div>
@@ -222,7 +227,7 @@ export function MessageList({
                         <div
                           className={cn(
                             "rounded-lg px-3 py-2 text-sm break-words",
-                            isOwnMessage
+                            ownMessage
                               ? "bg-primary text-primary-foreground"
                               : "bg-muted",
                             isConsecutive && "mt-1"
@@ -254,7 +259,7 @@ export function MessageList({
                           <div
                             className={cn(
                               "flex items-center gap-1 mt-1 text-xs",
-                              isOwnMessage
+                              ownMessage
                                 ? "text-primary-foreground/70 justify-end"
                                 : "text-muted-foreground"
                             )}
@@ -263,7 +268,7 @@ export function MessageList({
                             {message.isEdited && (
                               <span className="italic">(edited)</span>
                             )}
-                            {isOwnMessage && (
+                            {ownMessage && (
                               <span className="flex" aria-label="Read">
                                 {/* Message status: two full ticks, overlapped */}
                                 <Check className="size-3.5" aria-hidden="true" />
@@ -297,7 +302,7 @@ export function MessageList({
                                   <Copy />
                                   Copy
                                 </DropdownMenuItem>
-                                {isOwnMessage && (
+                                {ownMessage && (
                                   <>
                                     <DropdownMenuSeparator />
                                     <DropdownMenuItem className="cursor-pointer text-destructive">

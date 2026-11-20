@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 import { Menu, X } from "lucide-react"
 
 import { TooltipProvider } from "@/components/ui/tooltip"
@@ -21,9 +21,21 @@ interface ChatProps {
   conversations: Conversation[]
   messages: Record<string, Message[]>
   users: User[]
+  currentUserId?: number
+  onSelectConversation?: (conversationId: string) => void
+  onSendMessage?: (content: string) => Promise<void> | void
+  onTypingChange?: (conversationId: string, typing: boolean) => void
 }
 
-export function Chat({ conversations, messages, users }: ChatProps) {
+export function Chat({
+  conversations,
+  messages,
+  users,
+  currentUserId,
+  onSelectConversation,
+  onSendMessage,
+  onTypingChange,
+}: ChatProps) {
   const {
     selectedConversation,
     setSelectedConversation,
@@ -35,6 +47,7 @@ export function Chat({ conversations, messages, users }: ChatProps) {
   } = useChat()
 
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
+  const [typingConversation, setTypingConversation] = useState<string | null>(null)
 
   // Close sidebar when clicking outside on mobile
   useEffect(() => {
@@ -56,6 +69,25 @@ export function Chat({ conversations, messages, users }: ChatProps) {
     }
   }, [])
 
+  useEffect(() => {
+    const handleTyping = (event: Event) => {
+      const payload = (
+        event as CustomEvent<{
+          conversationId: number
+          userId: number
+          typing: boolean
+        }>
+      ).detail
+      if (payload.userId === currentUserId) return
+      setTypingConversation(
+        payload.typing ? String(payload.conversationId) : null,
+      )
+    }
+    window.addEventListener("support-chat:typing", handleTyping)
+    return () =>
+      window.removeEventListener("support-chat:typing", handleTyping)
+  }, [currentUserId])
+
   // Initialize data
   useEffect(() => {
     setConversations(conversations)
@@ -71,6 +103,7 @@ export function Chat({ conversations, messages, users }: ChatProps) {
     // Auto-select first conversation if none selected
     if (!selectedConversation && conversations.length > 0) {
       setSelectedConversation(conversations[0].id)
+      onSelectConversation?.(conversations[0].id)
     }
   }, [
     conversations,
@@ -81,6 +114,7 @@ export function Chat({ conversations, messages, users }: ChatProps) {
     setMessages,
     setUsers,
     setSelectedConversation,
+    onSelectConversation,
   ])
 
   const currentConversation = conversations.find(
@@ -89,22 +123,34 @@ export function Chat({ conversations, messages, users }: ChatProps) {
   const currentMessages = selectedConversation
     ? messages[selectedConversation] || []
     : []
+  const reportTypingChange = useCallback(
+    (typing: boolean) => {
+      if (selectedConversation) {
+        onTypingChange?.(selectedConversation, typing)
+      }
+    },
+    [onTypingChange, selectedConversation],
+  )
 
-  const handleSendMessage = (content: string) => {
+  const handleSendMessage = async (content: string) => {
     if (!selectedConversation) return
+    if (onSendMessage) {
+      await onSendMessage(content)
+      return
+    }
 
-    const newMessage = {
+    addMessage(selectedConversation, {
       id: `msg-${Date.now()}`,
       content,
       timestamp: new Date().toISOString(),
       senderId: "current-user",
-      type: "text" as const,
+      senderRole: "admin",
+      isOwn: true,
+      type: "text",
       isEdited: false,
       reactions: [],
       replyTo: null,
-    }
-
-    addMessage(selectedConversation, newMessage)
+    })
   }
 
   const handleToggleMute = () => {
@@ -152,6 +198,7 @@ export function Chat({ conversations, messages, users }: ChatProps) {
             selectedConversation={selectedConversation}
             onSelectConversation={(id) => {
               setSelectedConversation(id)
+              onSelectConversation?.(id)
               setIsSidebarOpen(false) // Close sidebar on mobile after selection
             }}
           />
@@ -184,11 +231,25 @@ export function Chat({ conversations, messages, users }: ChatProps) {
           <div className="flex-1 flex flex-col min-h-0">
             {selectedConversation ? (
               <>
-                <MessageList messages={currentMessages} users={users} />
+                <MessageList
+                  messages={currentMessages}
+                  users={users}
+                  currentUserId={
+                    currentUserId ? String(currentUserId) : "current-user"
+                  }
+                />
+                {selectedConversation &&
+                  typingConversation === selectedConversation && (
+                    <div className="px-4 pb-2 text-xs text-muted-foreground">
+                      Customer is typing...
+                    </div>
+                  )}
 
                 {/* Message Input */}
                 <MessageInput
+                  key={selectedConversation}
                   onSendMessage={handleSendMessage}
+                  onTypingChange={reportTypingChange}
                   placeholder={`Message ${currentConversation?.name || ""}...`}
                 />
               </>
